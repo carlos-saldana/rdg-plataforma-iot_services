@@ -1,13 +1,13 @@
 version: "3.8"
 
 #----- Volúmenes de emqx -----
-volumes:
-  vol-emqx-data:
-    name: foo-emqx-data
+#volumes:
+#  vol-emqx-data:
+#    name: foo-emqx-data
 #  vol-emqx-etc:
 #    name: foo-emqx-etc
-  vol-emqx-log:
-    name: foo-emqx-log
+#  vol-emqx-log:
+#    name: foo-emqx-log
 #-----------------------------
 
 services:
@@ -53,10 +53,10 @@ services:
       #Se grega el prefijo EMQX si editamos algo de emqx.conf.
       #El . se reemplaza por __
     
-    volumes:
-      - vol-emqx-data:/opt/emqx/data
+    #volumes:
+    #  - vol-emqx-data:/opt/emqx/data
     #  - vol-emqx-etc:/opt/emqx/etc #Aquí tenemos la configuración de emqx
-      - vol-emqx-log:/opt/emqx/log
+    #  - vol-emqx-log:/opt/emqx/log
 
     links:
       #Mongo ingresa acá como un link
@@ -97,7 +97,7 @@ services:
       EMQX_AUTH__MONGO__PASSWORD: "${MONGO_PASSWORD}"
       EMQX_AUTH__MONGO__AUTH_SOURCE: admin #Base de datos internas
 
-      EMQX_AUTH__MONGO__DATABASE: "ioticos_god_level" #Base de datos
+      EMQX_AUTH__MONGO__DATABASE: "rdg_data" #Base de datos
       EMQX_AUTH__MONGO__AUTH_QUERY__COLLECTION: "emqxauthrules" #Colección
 
       EMQX_AUTH__MONGO__SUPER_QUERY__COLLECTION: "emqxauthrules"

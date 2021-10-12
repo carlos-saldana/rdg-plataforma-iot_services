@@ -127,7 +127,7 @@ services:
       EMQX_AUTH__MONGO__PASSWORD: "${MONGO_PASSWORD}"
       EMQX_AUTH__MONGO__AUTH_SOURCE: admin #Base de datos internas
 
-      EMQX_AUTH__MONGO__DATABASE: "ioticos_god_level" #Base de datos
+      EMQX_AUTH__MONGO__DATABASE: "rdg_data" #Base de datos
       EMQX_AUTH__MONGO__AUTH_QUERY__COLLECTION: "emqxauthrules" #Colección
 
       EMQX_AUTH__MONGO__SUPER_QUERY__COLLECTION: "emqxauthrules"
