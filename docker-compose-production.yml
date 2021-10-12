@@ -1,0 +1,150 @@
+#Comando para ejecutar:
+  #docker-compose -f docker-compose-production.yml up
+version: "3.8"
+
+#----- Volúmenes de emqx -----
+volumes:
+  vol-emqx-data:
+    name: foo-emqx-data
+#  vol-emqx-etc:
+#    name: foo-emqx-etc
+  vol-emqx-log:
+    name: foo-emqx-log
+#-----------------------------
+
+services:
+
+  #------------------------------------------------------
+  #-------------------- NODE SERVICE --------------------
+  #------------------------------------------------------
+  node:
+    container_name: node
+    image: "node:14"
+    restart: always
+    #Ejecuta el código que está en esta dirección
+    working_dir: /home/node/app
+    volumes:
+      - ./mycode/index.js:/home/node/app/index.js
+    ports:
+      - "3000:3000" #Puerto del el front-end
+      - "3001:3001" #Puerto para la API
+      - "80:3002"   #Conexión sin ssl
+
+    #Los links reemplazan las IPs
+    links:
+      - emqx
+      - mongo
+
+    command: sh -c "node index.js"
+  #------------------------------------------------------
+  #------------------------------------------------------
+  #------------------------------------------------------
+  
+
+  #-------------------------------------------------------
+  #-------------------- MONGO SERVICE --------------------
+  #-------------------------------------------------------
+  mongo:
+    container_name: mongo
+    image: mongo:4.4
+    restart: always
+    environment:
+      TZ: "${TZ}"
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
+    volumes:
+      - ./mongodata:/data/db
+    ports:
+      - ${MONGO_EXTERNAL_PORT}:27017
+  #-------------------------------------------------------
+  #-------------------------------------------------------
+  #-------------------------------------------------------
+
+
+  #------------------------------------------------------
+  #-------------------- EMQX SERVICE --------------------
+  #------------------------------------------------------
+  emqx:
+    container_name: emqx
+    image: emqx/emqx:4.2.3
+    restart: always
+    ports:
+      - 18083:18083 #Emqx dashboard
+      #- 18084:18084
+      - 1883:1883
+      - 8883:8883
+      - 8083:8083 #conexión insegura
+      #- 8084:8084 #conexión segura
+      - 8085:8081
+
+    #Pasamos variables de entorno al contenedor.
+      #Las variables de entorno siempre van con mayúscula.
+      #Se grega el prefijo EMQX si editamos algo de emqx.conf.
+      #El . se reemplaza por __
+    
+    volumes:
+      - vol-emqx-data:/opt/emqx/data
+    #  - vol-emqx-etc:/opt/emqx/etc #Aquí tenemos la configuración de emqx
+      - vol-emqx-log:/opt/emqx/log
+
+    links:
+      #Mongo ingresa acá como un link
+      - mongo
+
+    #Dentro de emqx, cuando pongamos localhost: se apuntará al IP de nuestro ordenador
+    extra_hosts:
+      - "localhost:192.168.1.6"
+    
+    environment:
+
+      EMQX_NAME: RDG-dashboard
+      EMQX_HOST: 127.0.0.1
+
+      TZ: "${TZ}"
+
+      #dashboard.default_user.login = admin
+      EMQX_DASHBOARD__DEFAULT_USER__PASSWORD: "${DEFAULT_USER_PASSWORD}"
+
+      #Contraseña para el api de emqx
+      EMQX_MANAGEMENT__DEFAULT_APPLICATION__SECRET: "${EMQX_DEFAULT_APPLICATION_SECRET}"
+
+      EMQX_ALLOW_ANONYMOUS: "false" #Ingresamos con usuario y contraseña desde EMQX
+      EMQX_NOMATCH: "deny"
+
+      #listener.tcp.external.max_connections
+      EMQX_LISTENER__TCP__EXTERNAL__MAX_CONNECTIONS: 1000
+
+      #Conexión a MongoDB
+      EMQX_AUTH__MONGO__TYPE: single
+      EMQX_AUTH__MONGO__TOPOLOGY__POOL_SIZE: 1
+      EMQX_AUTH__MONGO__TOPOLOGY__MAX_OVERFLOW: 0
+
+      EMQX_AUTH__MONGO__SERVER: "mongo:${MONGO_EXTERNAL_PORT}" #IP para la conexión a Mongo
+      EMQX_AUTH__MONGO__POOL: 8 #8 conexiones paralelas a Mongo
+
+      EMQX_AUTH__MONGO__LOGIN: "${MONGO_USERNAME}"
+      EMQX_AUTH__MONGO__PASSWORD: "${MONGO_PASSWORD}"
+      EMQX_AUTH__MONGO__AUTH_SOURCE: admin #Base de datos internas
+
+      EMQX_AUTH__MONGO__DATABASE: "ioticos_god_level" #Base de datos
+      EMQX_AUTH__MONGO__AUTH_QUERY__COLLECTION: "emqxauthrules" #Colección
+
+      EMQX_AUTH__MONGO__SUPER_QUERY__COLLECTION: "emqxauthrules"
+      EMQX_AUTH__MONGO__SUPER_QUERY__SUPER_FIELD: "is_superuser" #Indicamos que es superusuario
+      EMQX_AUTH__MONGO__SUPER_QUERY__SELECTOR: "username=%u" #username del superusuario
+      EMQX_AUTH__MONGO__SUPER_QUERY: "off" #Apagamos SUPER_QUERY
+
+      EMQX_AUTH__MONGO__AUTH_QUERY__PASSWORD_HASH: plain
+      EMQX_AUTH__MONGO__AUTH_QUERY__PASSWORD_FIELD: "password"
+      EMQX_AUTH__MONGO__AUTH_QUERY__SELECTOR: "username=%u"
+
+      #Parámetros de publicación-suscripción (Acces control list)
+      EMQX_AUTH__MONGO__ACL_QUERY: "on"
+      EMQX_AUTH__MONGO__ACL_QUERY__COLLECTION: "emqxauthrules"
+      EMQX_AUTH__MONGO__ACL_QUERY__SELECTOR: "username=%u"
+
+      #Plugins a cargar
+      EMQX_LOADED_PLUGIN: "emqx_recon, emqx_retainer, emqx_management, emqx_dashboard, emqx_auth_mongo"
+  #------------------------------------------------------
+  #------------------------------------------------------
+  #------------------------------------------------------
