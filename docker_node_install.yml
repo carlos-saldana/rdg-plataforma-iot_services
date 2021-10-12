@@ -7,18 +7,14 @@ services:
   #------------------------------------------------------
   #-------------------- NODE SERVICE --------------------
   #------------------------------------------------------
-  node:
-    container_name: node
+  node_install:
+    container_name: node_install
     image: "node:14"
 
     #Ejecuta el código que está en esta dirección
     working_dir: /home/node/app
     volumes:
       - ./app:/home/node/app
-    ports:
-      - "3000:3000" #Puerto del el front-end
-      - "3001:3001" #Puerto para la API
-      - "80:3002"   #Conexión sin ssl
 
     #Creamos la carpeta node_modules solo por 1ra vez
     command: sh -c "npm install"
