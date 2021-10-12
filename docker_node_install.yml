@@ -1,0 +1,29 @@
+#Comando para ejecutar:
+  #docker-compose -f docker-compose-production.yml up
+version: "3.8"
+
+services:
+
+  #------------------------------------------------------
+  #-------------------- NODE SERVICE --------------------
+  #------------------------------------------------------
+  node:
+    container_name: node
+    image: "node:14"
+
+    #Ejecuta el código que está en esta dirección
+    working_dir: /home/node/app
+    volumes:
+      - ./mycode/index.js:/home/node/app/index.js
+    ports:
+      - "3000:3000" #Puerto del el front-end
+      - "3001:3001" #Puerto para la API
+      - "80:3002"   #Conexión sin ssl
+
+    #Los links reemplazan las IPs
+    links:
+      - emqx
+      - mongo
+
+    #Creamos la carpeta node_modules solo por 1ra vez
+    command: sh -c "npm install"

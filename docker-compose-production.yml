@@ -20,11 +20,11 @@ services:
   node:
     container_name: node
     image: "node:14"
-    restart: always
+
     #Ejecuta el código que está en esta dirección
     working_dir: /home/node/app
     volumes:
-      - ./mycode/index.js:/home/node/app/index.js
+      - ./app:/home/node/app
     ports:
       - "3000:3000" #Puerto del el front-end
       - "3001:3001" #Puerto para la API
@@ -35,7 +35,8 @@ services:
       - emqx
       - mongo
 
-    command: sh -c "node index.js"
+    #command: sh -c "node index.js"
+    command: sh -c "npm run build && npm run start"
   #------------------------------------------------------
   #------------------------------------------------------
   #------------------------------------------------------
@@ -46,7 +47,7 @@ services:
   mongo:
     container_name: mongo
     image: mongo:4.4
-    restart: always
+
     environment:
       TZ: "${TZ}"
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_USERNAME}"
@@ -66,7 +67,7 @@ services:
   emqx:
     container_name: emqx
     image: emqx/emqx:4.2.3
-    restart: always
+
     ports:
       - 18083:18083 #Emqx dashboard
       #- 18084:18084
