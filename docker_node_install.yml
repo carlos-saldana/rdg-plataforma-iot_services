@@ -14,7 +14,7 @@ services:
     #Ejecuta el código que está en esta dirección
     working_dir: /home/node/app
     volumes:
-      - ./app:/home/node/app
+      - ./app/:/home/node/app
 
     #Creamos la carpeta node_modules solo por 1ra vez
     command: sh -c "npm install"

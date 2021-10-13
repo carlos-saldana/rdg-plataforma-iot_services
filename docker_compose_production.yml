@@ -20,16 +20,15 @@ services:
   node:
     container_name: node
     image: "node:14"
-
+    restart: always
     #Ejecuta el código que está en esta dirección
     working_dir: /home/node/app
     volumes:
-      - ./app:/home/node/app
+      - ./app/:/home/node/app
     ports:
       - "3000:3000" #Puerto del el front-end
       - "3001:3001" #Puerto para la API
       - "80:3002"   #Conexión sin ssl
-
     #Los links reemplazan las IPs
     links:
       - emqx
@@ -48,6 +47,7 @@ services:
   mongo:
     container_name: mongo
     image: mongo:4.4
+    restart: always
     logging:
       driver: "none"
     environment:
@@ -69,6 +69,7 @@ services:
   emqx:
     container_name: emqx
     image: emqx/emqx:4.2.3
+    restart: always
 
     ports:
       - 18083:18083 #Emqx dashboard
