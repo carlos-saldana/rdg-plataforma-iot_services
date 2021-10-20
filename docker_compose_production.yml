@@ -6,8 +6,6 @@ version: "3.8"
 volumes:
   vol-emqx-data:
     name: foo-emqx-data
-#  vol-emqx-etc:
-#    name: foo-emqx-etc
   vol-emqx-log:
     name: foo-emqx-log
 #-----------------------------
@@ -73,11 +71,8 @@ services:
 
     ports:
       - 18083:18083 #Emqx dashboard
-      #- 18084:18084
       - 1883:1883
-      - 8883:8883
       - 8083:8083 #conexión insegura
-      #- 8084:8084 #conexión segura
       - 8085:8081
 
     #Pasamos variables de entorno al contenedor.
@@ -87,7 +82,6 @@ services:
     
     volumes:
       - vol-emqx-data:/opt/emqx/data
-    #  - vol-emqx-etc:/opt/emqx/etc #Aquí tenemos la configuración de emqx
       - vol-emqx-log:/opt/emqx/log
 
     links:
@@ -113,9 +107,6 @@ services:
 
       EMQX_ALLOW_ANONYMOUS: "false" #Ingresamos con usuario y contraseña desde EMQX
       EMQX_NOMATCH: "deny"
-
-      #listener.tcp.external.max_connections
-      EMQX_LISTENER__TCP__EXTERNAL__MAX_CONNECTIONS: 1000
 
       #Conexión a MongoDB
       EMQX_AUTH__MONGO__TYPE: single
@@ -148,6 +139,9 @@ services:
 
       #Plugins a cargar
       EMQX_LOADED_PLUGIN: "emqx_recon, emqx_retainer, emqx_management, emqx_dashboard, emqx_auth_mongo"
+
+      #listener.tcp.external.max_connections
+      EMQX_LISTENER__TCP__EXTERNAL__MAX_CONNECTIONS: 1000
   #-------------------------------------------------------
   #-------------------------------------------------------
   #-------------------------------------------------------
