@@ -55,7 +55,7 @@ services:
     volumes:
       - ./mongodata:/data/db
     ports:
-      - ${MONGO_EXTERNAL_PORT}:27017
+      - ${MONGO_EXT_PORT}:27017
   #-------------------------------------------------------
   #-------------------------------------------------------
   #-------------------------------------------------------
@@ -100,7 +100,7 @@ services:
       TZ: "${TZ}"
 
       #dashboard.default_user.login = admin
-      EMQX_DASHBOARD__DEFAULT_USER__PASSWORD: "${DEFAULT_USER_PASSWORD}"
+      EMQX_DASHBOARD__DEFAULT_USER__PASSWORD: "${EMQX_DEFAULT_USER_PASSWORD}"
 
       #Contraseña para el api de emqx
       EMQX_MANAGEMENT__DEFAULT_APPLICATION__SECRET: "${EMQX_DEFAULT_APPLICATION_SECRET}"
